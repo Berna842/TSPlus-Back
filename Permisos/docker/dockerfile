@@ -1,0 +1,30 @@
+#Service Permisos Management
+
+#Image to run the service
+FROM python:3.12
+
+RUN curl -sSL https://install.python-poetry.org | python3 -
+
+#Confirmation if the poetry run correctly 
+RUN $HOME/.local/bin/poetry --version
+
+WORKDIR /Permisos
+
+# Copia el archivo pyproject.toml y poetry.lock a la imagen
+COPY ../pyproject.toml ../poetry.lock /Permisos/
+
+ENV PATH="$PATH:/root/.local/bin"
+
+RUN poetry config virtualenvs.in-project true
+
+COPY ../src /Permisos/src
+
+RUN $HOME/.local/bin/poetry install --no-root
+
+RUN poetry show
+
+CMD ["poetry", "run", "python", "src/app.py", "serve"]
+
+EXPOSE 8000
+
+RUN echo 'Starting service'
